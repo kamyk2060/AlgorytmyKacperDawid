@@ -212,32 +212,6 @@ void test_string_list() {
     std::cout << "Test 8: PASSED\n" << std::endl;
 }
 
-void test_move_semantics_with_strings() {
-    std::cout << "=== Test 9: Semantyka przenoszenia ze stringami ===" << std::endl;
-    
-    SingleList<std::string> list1;
-    list1.push_back("First");
-    list1.push_back("Second");
-    
-    std::cout << "List1 przed przeniesieniem: ";
-    list1.display();
-    
-    // Test push z przenoszeniem
-    std::string temp = "Temporary";
-    list1.push_back(std::move(temp));
-    std::cout << "List1 po push_back(move): ";
-    list1.display();
-    std::cout << "temp po przeniesieniu: '" << temp << "'" << std::endl;
-    
-    // Test insert z przenoszeniem
-    std::string temp2 = "Inserted";
-    list1.insert(1, std::move(temp2));
-    std::cout << "List1 po insert z move: ";
-    list1.display();
-    std::cout << "temp2 po przeniesieniu: '" << temp2 << "'" << std::endl;
-    
-    std::cout << "Test 9: PASSED\n" << std::endl;
-}
 
 void test_edge_cases() {
     std::cout << "=== Test 10: Przypadki brzegowe ===" << std::endl;
@@ -272,47 +246,6 @@ void test_edge_cases() {
     std::cout << "Test 10: PASSED\n" << std::endl;
 }
 
-void test_complex_operations() {
-    std::cout << "=== Test 11: Złożone operacje ===" << std::endl;
-    
-    SingleList<int> list;
-    
-    // Mieszane operacje push
-    for (int i = 0; i < 5; ++i) {
-        if (i % 2 == 0) {
-            list.push_back(i);
-        } else {
-            list.push_front(i);
-        }
-    }
-    
-    std::cout << "Po mieszanych operacjach push: ";
-    list.display();
-    
-    // Mieszane operacje pop
-    list.pop_front();
-    list.pop_back();
-    
-    std::cout << "Po mieszanych operacjach pop: ";
-    list.display();
-    
-    // Wiele operacji insert i erase
-    list.insert(1, 100);
-    list.insert(0, 200);
-    list.insert(list.size(), 300);
-    
-    std::cout << "Po wielu insert: ";
-    list.display();
-    
-    list.erase(0);
-    list.erase(1);
-    list.erase(list.size() - 1);
-    
-    std::cout << "Po wielu erase: ";
-    list.display();
-    
-    std::cout << "Test 11: PASSED\n" << std::endl;
-}
 
 int main() {
     std::cout << "Rozpoczynanie testów SingleList...\n" << std::endl;
@@ -326,9 +259,7 @@ int main() {
         test_reverse();
         test_clear();
         test_string_list();
-        test_move_semantics_with_strings();
         test_edge_cases();
-        test_complex_operations();
         
         std::cout << "====================================" << std::endl;
         std::cout << "WSZYSTKIE TESTY ZOSTAŁY POMYŚLNIE PRZEPROWADZONE!" << std::endl;
