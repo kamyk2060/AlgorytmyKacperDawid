@@ -77,7 +77,7 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Poly<U>& poly);
 };
 
-// Implementacja metod (w pliku naglowkowym bo to szablon)
+// Implementacja metod 
 
 template<typename T>
 void Poly<T>::resize(int new_capacity) {
