@@ -300,6 +300,7 @@ int main() {
     } catch (const exception& e) {
         cout << "\n[BLAD] " << e.what() << endl;
         return 1;
+        
     }
     
     return 0;

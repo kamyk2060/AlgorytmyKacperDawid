@@ -77,6 +77,7 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Poly<U>& poly);
 };
 
+
 // Implementacja metod 
 
 template<typename T>
