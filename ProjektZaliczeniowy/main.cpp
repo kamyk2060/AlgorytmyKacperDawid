@@ -16,7 +16,7 @@ void testKonstruktory() {
     // Test konstruktora domyslnego
     Poly<double> p1;
     assert(p1.is_zero());
-    assert(p1.degree() == -1);
+    assert(p1.degree() == 0);
     cout << "[OK] Konstruktor domyslny dziala" << endl;
     
     // Test konstruktora z tablicy
@@ -213,7 +213,7 @@ void testMetodyPomocnicze() {
     Poly<double> p2(arr, 5);
     p2.clear();
     assert(p2.is_zero());
-    assert(p2.degree() == -1);
+    assert(p2.degree() == 0);
     cout << "[OK] Funkcja clear() dziala" << endl;
     
     // Test is_zero()

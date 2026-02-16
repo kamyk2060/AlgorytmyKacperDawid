@@ -11,13 +11,10 @@ class Poly {
 private:
     T* coeffs;       // Tablica wspolczynnikow
     int capacity;    // Rozmiar zaalokowanej tablicy
-    int deg;         // Stopien wielomianu (-1 dla wielomianu zerowego)
 
     // Zmienia rozmiar tablicy wspolczynnikow
     void resize(int new_capacity);
     
-    // Aktualizuje stopien wielomianu (znajduje najwyzsza potege)
-    void update_degree();
 
 public:
     // Konstruktor domyslny - tworzy wielomian zerowy
@@ -51,9 +48,6 @@ public:
     // Operator [] - zwraca wspolczynnik przy x^index (tylko odczyt)
     T operator[](int index) const;
     
-    // Metoda do modyfikacji wspolczynnika
-    T& at(int index);
-    
     // Oblicza wartosc wielomianu w punkcie x (algorytm Hornera)
     T evaluate(T x) const;
     
@@ -76,7 +70,6 @@ public:
     template<typename U>
     friend std::ostream& operator<<(std::ostream& os, const Poly<U>& poly);
 };
-
 
 // Implementacja metod 
 
@@ -104,29 +97,16 @@ void Poly<T>::resize(int new_capacity) {
     capacity = new_capacity;
 }
 
-template<typename T>
-void Poly<T>::update_degree() {
-    // Szukamy najwyzszego niezerowego wspolczynnika
-    deg = -1; // Zakladamy wielomian zerowy
-    
-    for (int i = capacity - 1; i >= 0; i--) {
-        // Sprawdzamy czy wspolczynnik jest rozny od zera
-        if (std::abs(coeffs[i]) > 1e-10) {
-            deg = i;
-            break;
-        }
-    }
-}
 
 template<typename T>
-Poly<T>::Poly() : capacity(1), deg(-1) {
+Poly<T>::Poly() : capacity(1) {
     // Tworzymy wielomian zerowy
     coeffs = new T[1];
     coeffs[0] = T(0);
 }
 
 template<typename T>
-Poly<T>::Poly(int size) : capacity(size > 0 ? size : 1), deg(-1) {
+Poly<T>::Poly(int size) : capacity(size > 0 ? size : 1) {
     // Tworzymy tablice wypelniona zerami
     coeffs = new T[capacity];
     for (int i = 0; i < capacity; i++) {
@@ -135,18 +115,19 @@ Poly<T>::Poly(int size) : capacity(size > 0 ? size : 1), deg(-1) {
 }
 
 template<typename T>
-Poly<T>::Poly(const T* arr, int size) : capacity(size > 0 ? size : 1), deg(-1) {
+Poly<T>::Poly(const T* arr, int size) : capacity(size > 0 ? size : 1) {
     // Kopiujemy wspolczynniki z tablicy
     coeffs = new T[capacity];
     for (int i = 0; i < size; i++) {
         coeffs[i] = arr[i];
     }
-    // Obliczamy stopien wielomianu
-    update_degree();
+    for (int i = size; i < capacity; i++) {
+        coeffs[i] = T(0);
+    }
 }
 
 template<typename T>
-Poly<T>::Poly(const Poly& other) : capacity(other.capacity), deg(other.deg) {
+Poly<T>::Poly(const Poly& other) : capacity(other.capacity) {
     // Kopiujemy wszystkie dane z innego wielomianu
     coeffs = new T[capacity];
     for (int i = 0; i < capacity; i++) {
@@ -169,7 +150,6 @@ Poly<T>& Poly<T>::operator=(const Poly& other) {
         
         // Kopiujemy dane
         capacity = other.capacity;
-        deg = other.deg;
         coeffs = new T[capacity];
         for (int i = 0; i < capacity; i++) {
             coeffs[i] = other.coeffs[i];
@@ -184,18 +164,28 @@ void Poly<T>::clear() {
     for (int i = 0; i < capacity; i++) {
         coeffs[i] = T(0);
     }
-    deg = -1;
 }
 
 template<typename T>
 bool Poly<T>::is_zero() const {
-    // Wielomian zerowy ma stopien -1
-    return deg == -1;
+    // Sprawdzamy czy wszystkie wspolczynniki sa zerowe
+    for (int i = 0; i < capacity; i++) {
+        if (std::abs(coeffs[i]) > 1e-10) {
+            return false;
+        }
+    }
+    return true;
 }
 
 template<typename T>
 int Poly<T>::degree() const {
-    return deg;
+    // Szukamy najwyzszego niezerowego wspolczynnika
+    for (int i = capacity - 1; i >= 0; i--) {
+        if (std::abs(coeffs[i]) > 1e-10) {
+            return i;
+        }
+    }
+    return 0; // Wielomian zerowy
 }
 
 template<typename T>
@@ -203,15 +193,6 @@ T Poly<T>::operator[](int index) const {
     // Zwracamy wspolczynnik lub 0 jesli poza zakresem
     if (index < 0 || index >= capacity) {
         return T(0);
-    }
-    return coeffs[index];
-}
-
-template<typename T>
-T& Poly<T>::at(int index) {
-    // Powiekszamy tablice jesli trzeba
-    if (index >= capacity) {
-        resize(index + 1);
     }
     return coeffs[index];
 }
@@ -226,6 +207,7 @@ T Poly<T>::evaluate(T x) const {
         return T(0);
     }
     
+    int deg = degree();
     // Zaczynamy od najwyzszego wspolczynnika
     T result = coeffs[deg];
     
@@ -245,15 +227,11 @@ Poly<T> Poly<T>::operator+(const Poly& other) const {
     int max_size = (capacity > other.capacity) ? capacity : other.capacity;
     Poly result(max_size);
     
-    // Dodajemy odpowiednie wspolczynniki
+    // Dodajemy odpowiednie wspolczynniki uzywajac operatora []
     for (int i = 0; i < max_size; i++) {
-        T a = (i < capacity) ? coeffs[i] : T(0);
-        T b = (i < other.capacity) ? other.coeffs[i] : T(0);
-        result.at(i) = a + b;
+        result.coeffs[i] = (*this)[i] + other[i];
     }
     
-    // Aktualizujemy stopien
-    result.update_degree();
     return result;
 }
 
@@ -265,12 +243,9 @@ Poly<T> Poly<T>::operator-(const Poly& other) const {
     Poly result(max_size);
     
     for (int i = 0; i < max_size; i++) {
-        T a = (i < capacity) ? coeffs[i] : T(0);
-        T b = (i < other.capacity) ? other.coeffs[i] : T(0);
-        result.at(i) = a - b;
+        result.coeffs[i] = (*this)[i] - other[i];
     }
     
-    result.update_degree();
     return result;
 }
 
@@ -283,26 +258,27 @@ Poly<T> Poly<T>::operator*(const Poly& other) const {
         return Poly(); // Zwracamy wielomian zerowy
     }
     
+    int deg1 = degree();
+    int deg2 = other.degree();
     // Stopien iloczynu to suma stopni
-    int result_size = deg + other.deg + 1;
+    int result_size = deg1 + deg2 + 1;
     Poly result(result_size);
     
     // Mnozymy kazdy wspolczynnik z kazdym
-    for (int i = 0; i <= deg; i++) {
-        for (int j = 0; j <= other.deg; j++) {
+    for (int i = 0; i <= deg1; i++) {
+        for (int j = 0; j <= deg2; j++) {
             // ai * bj dodajemy do wspolczynnika przy x^(i+j)
-            result.at(i + j) = result.at(i + j) + coeffs[i] * other.coeffs[j];
+            result.coeffs[i + j] += coeffs[i] * other.coeffs[j];
         }
     }
     
-    result.update_degree();
     return result;
 }
 
 template<typename T>
 bool Poly<T>::operator==(const Poly& other) const {
-    // Dwa wielomiany sa rowne, gdy ich roznica jest zerem
-    Poly diff = *this - other;
+    // Wielomiany sa rowne, gdy ich roznica jest wielomianem zerowym
+    Poly<T> diff = *this - other;
     return diff.is_zero();
 }
 
@@ -320,10 +296,11 @@ std::ostream& operator<<(std::ostream& os, const Poly<T>& poly) {
         return os;
     }
     
+    int deg = poly.degree();
     bool first = true; // Czy to pierwszy wyraz?
     
     // Przechodzimy od najwyzszej potegi do najnizszej
-    for (int i = poly.deg; i >= 0; i--) {
+    for (int i = deg; i >= 0; i--) {
         // Pomijamy zerowe wspolczynniki
         if (std::abs(poly.coeffs[i]) > 1e-10) {
             
@@ -340,7 +317,7 @@ std::ostream& operator<<(std::ostream& os, const Poly<T>& poly) {
             if (i == 0) {
                 // Dla wyrazu wolnego zawsze pokazujemy wartosc
                 os << coeff;
-            } else if (std::abs(coeff - 1.0) > 1e-10) {
+            } else if (std::abs(coeff - T(1)) > 1e-10) {
                 // Dla innych - tylko jesli rozny od 1
                 os << coeff;
             }
