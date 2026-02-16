@@ -263,13 +263,3 @@ To działa też dla typów całkowitych (`int`), bo `1e-10` jest praktycznie zer
 
 ---
 
-## Autor i licencja
-
-Projekt stworzony jako zadanie z programowania obiektowego w C++.
-
-**Wykorzystane technologie:**
-- C++17
-- Szablony klas (templates)
-- Przeciążanie operatorów
-- Dynamiczna alokacja pamięci
-"
