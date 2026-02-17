@@ -75,12 +75,16 @@ public:
 
 template<typename T>
 void Poly<T>::resize(int new_capacity) {
+
+    if (new_capacity <= capacity) {
+        return;  // Nic nie robimy, już mamy wystarczający rozmiar
+    }
+
     // Tworzymy nowa tablice o wiekszym rozmiarze
     T* new_coeffs = new T[new_capacity];
     
     // Kopiujemy stare wartosci
-    int copy_size = (capacity < new_capacity) ? capacity : new_capacity;
-    for (int i = 0; i < copy_size; i++) {
+    for (int i = 0; i < capacity; i++) {  
         new_coeffs[i] = coeffs[i];
     }
     
@@ -118,11 +122,12 @@ template<typename T>
 Poly<T>::Poly(const T* arr, int size) : capacity(size > 0 ? size : 1) {
     // Kopiujemy wspolczynniki z tablicy
     coeffs = new T[capacity];
-    for (int i = 0; i < size; i++) {
-        coeffs[i] = arr[i];
-    }
-    for (int i = size; i < capacity; i++) {
-        coeffs[i] = T(0);
+    if (size > 0) {
+        for (int i = 0; i < size; i++) {
+            coeffs[i] = arr[i];  
+        }
+    } else {
+        coeffs[0] = T(0);
     }
 }
 
