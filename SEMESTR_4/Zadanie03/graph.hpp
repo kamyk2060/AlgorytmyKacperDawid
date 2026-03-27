@@ -64,7 +64,7 @@ public:
         assert(0 <= u && u < v());
     }
 
-    // usunięcie wierzchołka - usuwamy krawędzie O(n)
+    // usunięcie wierzchołka - usuwamy krawędzie incydentne, O(n)
     void del_node(int u) override {
         for (int w = 0; w < v(); w++) {
             adj_matrix[u][w] = 0;
@@ -162,29 +162,33 @@ public:
 
 // --- definicje metod iteratorów (potrzebują pełnej definicji Graph) ---
 
-// EdgeIterator - szuka następnej krawędzi od bieżącej pozycji
+// EdgeIterator::find_next() - przesuwa się z bieżącej pozycji
+// i szuka NASTĘPNEJ krawędzi w macierzy.
+// Najpierw robi krok naprzód (++col), potem skanuje dalej.
 inline void EdgeIterator::find_next() {
     int n = graph->v();
+    ++col; // przesuwamy się z bieżącej pozycji
     while (row < n) {
         while (col < n) {
             if (graph->get_adj(row, col) == 1) {
-                // dla grafu nieskierowanego bierzemy krawędź tylko raz (row <= col)
+                // dla nieskierowanego: krawędź liczymy raz (row <= col)
                 if (graph->is_directed() || row <= col)
-                    return;
+                    return; // znaleziono następną krawędź
             }
             ++col;
         }
         ++row;
         col = 0;
     }
-    // koniec - ustawiamy na pozycję end
+    // koniec macierzy - ustawiamy pozycję end
     row = n;
     col = 0;
 }
 
 // EdgeIterator - konstruktor begin
+// Startujemy z col = -1, żeby find_next() po ++col zaczął od (0, 0).
 inline EdgeIterator::EdgeIterator(const Graph* g)
-    : graph(g), row(0), col(0) {
+    : graph(g), row(0), col(-1) {
     find_next(); // szukamy pierwszej krawędzi
 }
 
@@ -197,19 +201,22 @@ inline Edge<int> EdgeIterator::operator*() const {
     return Edge<int>(row, col, graph->get_adj(row, col));
 }
 
-// AdjacentIterator - szuka następnego sąsiada
+// AdjacentIterator::find_next() - przesuwa się z bieżącej pozycji
+// i szuka NASTĘPNEGO sąsiada w wierszu src.
 inline void AdjacentIterator::find_next() {
     int n = graph->v();
+    ++pos; // przesuwamy się z bieżącej pozycji
     while (pos < n) {
         if (graph->get_adj(src, pos) == 1)
-            return;
+            return; // znaleziono następnego sąsiada
         ++pos;
     }
 }
 
 // AdjacentIterator - konstruktor begin
+// Startujemy z pos = -1, żeby find_next() po ++pos zaczął od 0.
 inline AdjacentIterator::AdjacentIterator(const Graph* g, int r)
-    : graph(g), src(r), pos(0) {
+    : graph(g), src(r), pos(-1) {
     find_next(); // szukamy pierwszego sąsiada
 }
 

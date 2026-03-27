@@ -61,14 +61,12 @@ public:
     EdgeIterator(const Graph* g, int r, int c);     // end
 
     EdgeIterator& operator++() {
-        ++col;
         find_next();
         return *this;
     }
 
     EdgeIterator operator++(int) {
         EdgeIterator tmp = *this;
-        ++col;
         find_next();
         return tmp;
     }
@@ -97,14 +95,12 @@ public:
     AdjacentIterator(const Graph* g, int r, int p);    // end
 
     AdjacentIterator& operator++() {
-        ++pos;
         find_next();
         return *this;
     }
 
     AdjacentIterator operator++(int) {
         AdjacentIterator tmp = *this;
-        ++pos;
         find_next();
         return tmp;
     }
