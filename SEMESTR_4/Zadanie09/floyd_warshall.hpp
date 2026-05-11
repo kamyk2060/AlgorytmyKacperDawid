@@ -41,8 +41,7 @@ public:
     }
 
     // Algorytm Floyda-Warshalla
-    // Idea: D[i][j]^(k) = najkrotsza sciezka z i do j, ktorej wszystkie
-    //       wewnetrzne wierzcholki naleza do {0, 1, ..., k}
+    // D[i][j]^(k) = najkrotsza sciezka z i do j, ktorej wszystkie
     // Rekurencja: D[i][j]^(k) = min{ D[i][j]^(k-1), D[i][k]^(k-1) + D[k][j]^(k-1) }
     void run() {
         int n = graph.v();
@@ -96,4 +95,4 @@ public:
     }
 };
 
-#endif // FLOYD_WARSHALL_HPP
+#endif 
